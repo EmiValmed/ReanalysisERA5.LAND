@@ -1,9 +1,11 @@
 clear; close all; clc
-%% Declarations Directories
-dataPath='E:\DATA_ERA5' ; addpath(dataPath);
-shpPath='C:\Users\ESVAM\Downloads' ; addpath(shpPath);
-OutPath='E:\DATA_ERA5\Outputs'; addpath(OutPath);% Catchments
+%% Declarations 
+% Directories
+dataPath= '\DATA_ERA5LAND .nc files'  ; addpath(dataPath);
+shpPath=  '\Sahpefiles path'          ; addpath(shpPath);
+OutPath=  '\results folder path'      ; addpath(OutPath);
 
+% Catchments
 if ~exist(fullfile(OutPath), 'dir')
     mkdir(fullfile(OutPath)); addpath(OutPath);
 end
@@ -12,7 +14,7 @@ end
 nameC = {'Bever_WGS84'};
 nBV = numel(nameC);
 
-% Reconocer archivos en el directorio
+% Recognizing files in the directory
 cd(dataPath)
 ncFiles = dir('*.nc');
 for ifile = 1: size(ncFiles,1)
@@ -33,7 +35,7 @@ lat0b = repmat(lat0, [1, size(lon0,1)]);
 netcdf.close(ncid);
 
 
-% Build catchment masks
+% Building catchment masks
 for iCatch = 1:nBV
     % Import ctch shape
     [S]=shaperead(fullfile(shpPath,sprintf('%s.shp',nameC{iCatch})));
