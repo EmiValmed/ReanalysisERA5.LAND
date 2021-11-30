@@ -1,7 +1,8 @@
 clear; close all; clc
-%% Declarations% Directories
-dataPath='E:\DATA_ERA5\Outputs' ; addpath(dataPath);
-OutPath='E:\DATA_ERA5\Outputs\ExcelFormat'; addpath(OutPath);% Catchments
+%% Declarations
+% Directories
+dataPath='\OutPath Folder path in the Extract_ERA5LAND script' ; addpath(dataPath);
+OutPath= '\Outputs\ExcelFormat'                                ; addpath(OutPath);% Catchments
 
 if ~exist(fullfile(OutPath), 'dir')
     mkdir(fullfile(OutPath)); addpath(OutPath);
