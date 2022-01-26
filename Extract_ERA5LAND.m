@@ -1,7 +1,7 @@
 clear; close all; clc
 %% Declarations 
 % Directories
-dataPath= '\DATA_ERA5LAND .nc files'  ; addpath(dataPath);
+dataPath= '\.nc files path'           ; addpath(dataPath);
 shpPath=  '\Sahpefiles path'          ; addpath(shpPath);
 OutPath=  '\results folder path'      ; addpath(OutPath);
 
@@ -10,11 +10,15 @@ if ~exist(fullfile(OutPath), 'dir')
     mkdir(fullfile(OutPath)); addpath(OutPath);
 end
 
+% Datebase
+data = 'ERA5'; % ERA5/ERA5LAND... % Specify the reanalysis
+
+
 % Catchment (shapefile's name)
 nameC = {'Bever_WGS84'};
 nBV = numel(nameC);
 
-% Recognizing files in the directory
+% Recognizing  .nc files in the directory
 cd(dataPath)
 ncFiles = dir('*.nc');
 for ifile = 1: size(ncFiles,1)
@@ -75,18 +79,30 @@ for iDates = 1: numel(StartDate)
     dataP = netcdf.getVar(ncid,netcdf.inqVarID(ncid,'tp'),'double');
     dataP = (dataP .* Psf + Pao).*1000;
     
-    % 2m Temperature
-    Tsf   = netcdf.getAtt(ncid,netcdf.inqVarID(ncid,'t2m'),'scale_factor');
-    Tao   = netcdf.getAtt(ncid,netcdf.inqVarID(ncid,'t2m'),'add_offset');
-    dataT = netcdf.getVar(ncid,netcdf.inqVarID(ncid,'t2m'),'double');
-    dataT = (dataT .* Tsf + Tao ) - 273.15;
-    
     % Total Evaporation
     Esf = netcdf.getAtt(ncid,netcdf.inqVarID(ncid,'e'),'scale_factor');
     Eao = netcdf.getAtt(ncid,netcdf.inqVarID(ncid,'e'),'add_offset');
     dataE = netcdf.getVar(ncid,netcdf.inqVarID(ncid,'e'),'double');
     dataE = (dataE .* Esf + Eao ).* 1000;
     
+    % 2m Temperature
+    Tsf   = netcdf.getAtt(ncid,netcdf.inqVarID(ncid,'t2m'),'scale_factor');
+    Tao   = netcdf.getAtt(ncid,netcdf.inqVarID(ncid,'t2m'),'add_offset');
+    dataT = netcdf.getVar(ncid,netcdf.inqVarID(ncid,'t2m'),'double');
+    dataT = (dataT .* Tsf + Tao ) - 273.15;
+    
+    % 2m Min Temperature
+    TNsf = netcdf.getAtt(ncid,netcdf.inqVarID(ncid,'mn2t'),'scale_factor'); 
+    TNao = netcdf.getAtt(ncid,netcdf.inqVarID(ncid,'mn2t'),'add_offset');
+    dataTmin = netcdf.getVar(ncid,netcdf.inqVarID(ncid,'mn2t'),'double'); 
+    dataTmin = (dataTmin .* TNsf + TNao ) - 273.15;
+    
+     % 2m Max Temperature
+    TXsf = netcdf.getAtt(ncid,netcdf.inqVarID(ncid,'mx2t'),'scale_factor'); 
+    TXao = netcdf.getAtt(ncid,netcdf.inqVarID(ncid,'mx2t'),'add_offset');   
+    dataTmax = netcdf.getVar(ncid,netcdf.inqVarID(ncid,'mx2t'),'double'); 
+    dataTmax = (dataTmax .* TXsf + TXao ) - 273.15;    
+       
     % Time
     Date = netcdf.getVar(ncid,netcdf.inqVarID(ncid,'time'),'double');
     Date = datenum(Date./24) + datenum('1900-01-01 00:00:00');
@@ -96,22 +112,29 @@ for iDates = 1: numel(StartDate)
     netcdf.close(ncid);
     
     % Trick for computing cathcment mean at catchment scale
-    Ptmp00 = arrayfun(@(iLT) squeeze(dataP(:,:,iLT)),1:ntime,'UniformOutput',0);
-    Tmp00 = arrayfun(@(iLT) squeeze(dataT(:,:,iLT)),1:ntime,'UniformOutput',0);
-    Emp00 = arrayfun(@(iLT) squeeze(dataE(:,:,iLT)),1:ntime,'UniformOutput',0);
+    Ptmp00   = arrayfun(@(iLT) squeeze(dataP(:,:,iLT)),1:ntime,'UniformOutput',0);
+    Emp00    = arrayfun(@(iLT) squeeze(dataE(:,:,iLT)),1:ntime,'UniformOutput',0);
+    Tmp00    = arrayfun(@(iLT) squeeze(dataT(:,:,iLT)),1:ntime,'UniformOutput',0);
+    Tminmp00 = arrayfun(@(iLT) squeeze(dataTmin(:,:,iLT)),1:ntime,'UniformOutput',0);
+    Tmaxmp00 = arrayfun(@(iLT) squeeze(dataTmax(:,:,iLT)),1:ntime,'UniformOutput',0);
+   
+   
     
     %% Compute mean at the catchment scale - Catchment loop
     for iCatch = 1:nBV
         inan = isnan(inGrid.(sprintf('C%s',nameC{iCatch})));
         
-        Ptmp = transpose(arrayfun(@(iLT) mean(Ptmp00{iLT}(~inan)),1:ntime));
-        Ttmp = transpose(arrayfun(@(iLT) mean(Tmp00{iLT}(~inan)),1:ntime));
-        Etmp = transpose(arrayfun(@(iLT) mean(Emp00{iLT}(~inan)),1:ntime));
+        Ptmp    = transpose(arrayfun(@(iLT) mean(Ptmp00{iLT}(~inan)),1:ntime));
+        Etmp    = transpose(arrayfun(@(iLT) mean(Emp00{iLT}(~inan)),1:ntime));      
+        Ttmp    = transpose(arrayfun(@(iLT) mean(Tmp00{iLT}(~inan)),1:ntime));
+        Tmintmp = transpose(arrayfun(@(iLT) mean(Tminmp00{iLT}(~inan)),1:ntime));
+        Tmaxtmp = transpose(arrayfun(@(iLT) mean(Tmaxmp00{iLT}(~inan)),1:ntime));
+       
         
         % Define output file name
-        outfile = sprintf('%s/%s_ERA5LAND_%s_%s.mat',OutPath,nameC{iCatch},StartDate{iDates},EndDate{iDates});
+        outfile = sprintf('%s/%s_%s_%s_%s.mat',OutPath,nameC{iCatch},data,StartDate{iDates},EndDate{iDates});
         % Export
-        save(outfile,'Ptmp', 'Ttmp', 'Etmp', 'Date', '-v6');
+        save(outfile,'Ptmp', 'Etmp', 'Ttmp', 'Tmintmp', 'Tmaxtmp',  'Date', '-v6');
         
     end
     
