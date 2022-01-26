@@ -1,7 +1,7 @@
 clear; close all; clc
 %% Declarations
 % Directories
-dataPath='\OutPath Folder path in the Extract_ERA5LAND script' ; addpath(dataPath);
+dataPath='\OutPath Folder path in the Extract_ERA5 script'     ; addpath(dataPath);
 OutPath= '\Outputs\ExcelFormat'                                ; addpath(OutPath);% Catchments
 
 if ~exist(fullfile(OutPath), 'dir')
@@ -13,15 +13,16 @@ VarName = 'tp';
 
 % Catchment (shapefile's name)
 nameC = {'Bever_WGS84'};
-nBV = numel(nameC);
+nCth = numel(nameC);
              
-% Output data Time steps 
-ts = 24;
-EndYear = 2008;
+% Output data Time steps
+ts = 24;          % To modify
+StartYear = 2005; % To modify
+EndYear   = 2010; % To modify
 
 % Time difference between UTC and the local time
 TimeZone  = 'UTC';     
-LocalZone = '+05:00';  % ----------------------------------------------------------------------------------------------------
+LocalZone = '-05:00';  % ----------------------------------------------------------------------------------------------------
                        % Note: You can specify the time zone value as a character vector of the form +HH:mm or -HH:mm, which 
                        % represents a time zone with a fixed offset from UTC that does not observe daylight saving time.
                        % You can also specify the time zone value as the name of a time zone region in the Internet Assigned 
@@ -29,11 +30,10 @@ LocalZone = '+05:00';  % -------------------------------------------------------
                        % display a list of all IANA time zones accepted by the datetime function.  
                        % ----------------------------------------------------------------------------------------------------
              
-for iCatch = 1:nBV
-% Define output file name
-
-   
-    matFiles= dir(strcat(dataPath,sprintf('/%s_%s_VarName*.mat',nameC{iCatch},data)));
+for iCatch = 1:nCth
+    
+    % Concatenate all the *.mat files   
+    matFiles= dir(strcat(dataPath,sprintf('/%s_%s_%s*.mat',nameC{iCatch},data,VarName)));
     tmp=[];                                  % start w/ an empty array
     for i=1:length(matFiles)
         tmp=[tmp; load(matFiles(i).name)];   % read/concatenate into x
@@ -41,38 +41,30 @@ for iCatch = 1:nBV
     
     %Get variables
     tmp2 = struct2cell(tmp);
-    Datetmp = datetime(vertcat(tmp2{1,:}),'ConvertFrom', 'datenum','TimeZone',TimeZone));
-    Datetmp.TimeZone = LocalZone;
-    ttmp = vertcat(tmp2{2,:});
+    Datetmp = datetime(vertcat(tmp2{1,:}),'ConvertFrom', 'datenum','TimeZone',TimeZone); % Date in the original timeZone.
+    Datetmp.TimeZone = LocalZone;                                                        % Conversion to local time.
+    Vartmp = vertcat(tmp2{2,:});                                                         % Variable time serie.
     
-                             
-    % Convert dates to local time
+    
+    % Considering full day 
     LocalDate = datevec(Datetmp);
-    SD = min(find(LocalDate(:,4)==1));                          % SD: start date. 
-    ED = max(find(LocalDate(:,4)==0 & LocalDate(:,1)==EndYear));% ED: End date.
-    LocalDate =LocalDate(SD:ED,:);                              % SD and ED are index to consider a full day in the local time (from 1h to 00h)
-    
-    
-    % Values on Local time
-    t1tmp = ttmp(SD:ED);
-    
-    Date_up = LocalDate(ts:ts:end,:);
-    Date5 = Date_up; 
-    
-    Date_up = LocalDate(:,1:3);
-    Date_up = datevec(unique(datenum(Date_up)));             
-    Date = Date_up;
-   
-    
-    ntime = numel(Pt1tmp);
-    index = sumIndex(ntime, ts);
-    Var  = round(cell2mat(cellfun(@(x) sum(t1tmp(x)),index,'un',0)),2);
-
+    SD = find(LocalDate(:,4)==1 & LocalDate(:,1)==StartYear, 1 );      % SD: start date.
+    ED = find(LocalDate(:,4)==0 & LocalDate(:,1)==EndYear, 1,'last');  % ED: End date.
+    LocalDate =LocalDate(SD:ED,:);                                     % SD and ED are index to consider full days in the 
+    Var1tmp = Vartmp(SD:ED);                                           % local time (from 1h to 00h)
+        
  
-        % Export
-     outfile = sprintf('%s/%s_%s_%s.mat',OutPath,nameC{iCatch}, data, ts, VarName);
-     save(outfile,'Var','Date','-v7.3');
-     
+    % Accumulating the values at the desired time step
+    ntime = numel(Var1tmp);
+    index = sumIndex(ntime, ts);
+    Var  = round(cell2mat(cellfun(@(x) sum(Var1tmp(x)),index,'un',0)),2);
+    
+    % Date at the desired time step
+    Date_up = LocalDate(ts:ts:end,:);
+    Date = Date_up;
+    
+    % Export
+    outfile = sprintf('%s/%s_%s_%s_%sh.mat',OutPath,nameC{iCatch},data,VarName,num2str(ts));
+    save(outfile,'Var','Date','-v7.3');
+    
 end
-
-
