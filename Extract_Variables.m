@@ -12,11 +12,12 @@ end
 
 % Datebase
 data = 'ERA5'; % ERA5/ERA5LAND... % Specify the reanalysis
-VarName = 'tp'; 
+VarName = 'tp';                   % To modify
+VarTipe = 'Variables_in_m';       % To modify
 
 % Catchment (shapefile's name)
 nameC = {'Bever_WGS84'};
-nBV = numel(nameC);
+nCth = numel(nameC);
 
 %% -------------------------------------------------- DO NOT TOUCH FROM HERE ---------------------------------------------
              
@@ -42,7 +43,7 @@ netcdf.close(ncid);
 
 
 % Building catchment masks
-for iCatch = 1:nBV
+for iCatch = 1:nCth
     % Import ctch shape
     [S]=shaperead(fullfile(shpPath,sprintf('%s.shp',nameC{iCatch})));
     % Get points inside the catchment
@@ -63,7 +64,7 @@ clear ncid S lat0 lon0 inGrid_tmplon0b = lon0b'; lat0b = lat0b';
 
 for iDates = 1: numel(StartDate)
     
-        % Display process
+    % Display process
     if rem( iDates,round(numel(StartDate)/50,0) ) == 0
         mntoc = round(toc/60,1);
         fprintf('%2.0f %% of files read - time elapsed %s minutes \n',iDate/numel(StartDate)*100, mntoc)
@@ -75,12 +76,10 @@ for iDates = 1: numel(StartDate)
     
     % Retrieve ERA5 variables and attributes (scale_factor and add_offset).
     
-    % Variable
-    sf   = netcdf.getAtt(ncid,netcdf.inqVarID(ncid,VarName),'scale_factor');
-    ao   = netcdf.getAtt(ncid,netcdf.inqVarID(ncid,VarName),'add_offset');
-    dataVar = netcdf.getVar(ncid,netcdf.inqVarID(ncid,VarName),'double');
-    dataVar = (dataVar .* sf + ao).*1000;
-          
+    % Variable   
+    getVar = str2func(sprintf('%s',VarTipe));
+    dataVar = getVar(VarName,ncid);
+    
     % Time
     Date = netcdf.getVar(ncid,netcdf.inqVarID(ncid,'time'),'double');
     Date = datenum(Date./24) + datenum('1900-01-01 00:00:00');
@@ -91,14 +90,14 @@ for iDates = 1: numel(StartDate)
     
     % Trick for computing cathcment mean at catchment scale
     tmp00   = arrayfun(@(iLT) squeeze(dataVar(:,:,iLT)),1:ntime,'UniformOutput',0);
-        
-             
+    
+    
     %% Compute mean at the catchment scale - Catchment loop
-    for iCatch = 1:nBV
+    for iCatch = 1:nCth
         inan = isnan(inGrid.(sprintf('C%s',nameC{iCatch})));
         
         tmp    = transpose(arrayfun(@(iLT) mean(tmp00{iLT}(~inan)),1:ntime));
-                
+        
         % Define output file name
         outfile = sprintf('%s/%s_%s_%s_%s_%s.mat',OutPath,nameC{iCatch},data,VarName,StartDate{iDates},EndDate{iDates});
         % Export
