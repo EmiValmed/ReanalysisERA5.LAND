@@ -8,28 +8,32 @@ if ~exist(fullfile(OutPath), 'dir')
     mkdir(fullfile(OutPath)); addpath(OutPath);
 end
 
+% Datebase
 data = 'ERA5'; % ERA5/ERA5LAND... % Specify the reanalysis
-VarName = 'tp'; 
+VarName = 'tp';
+Operation = 'sum';
 
 % Catchment (shapefile's name)
-nameC = {'Bever_WGS84'};
+nameC = {'CARACOL'};
 nCth = numel(nameC);
-             
+
 % Output data Time steps
-ts = 24;          % To modify
+ts = 24;           % To modify
 StartYear = 2005; % To modify
 EndYear   = 2010; % To modify
 
 % Time difference between UTC and the local time
-TimeZone  = 'UTC';     
+TimeZone  = 'UTC';
 LocalZone = '-05:00';  % ----------------------------------------------------------------------------------------------------
-                       % Note: You can specify the time zone value as a character vector of the form +HH:mm or -HH:mm, which 
+                       % Note: You can specify the time zone value as a character vector of the form +HH:mm or -HH:mm, which
                        % represents a time zone with a fixed offset from UTC that does not observe daylight saving time.
-                       % You can also specify the time zone value as the name of a time zone region in the Internet Assigned 
-                       % Numbers Authority (IANA) Time Zone Database. Run the function timezones in the command Windows to 
-                       % display a list of all IANA time zones accepted by the datetime function.  
+                       % You can also specify the time zone value as the name of a time zone region in the Internet Assigned
+                       % Numbers Authority (IANA) Time Zone Database. Run the function timezones in the command Windows to
+                       % display a list of all IANA time zones accepted by the datetime function.
                        % ----------------------------------------------------------------------------------------------------
-             
+
+%% -------------------------------------------------- DO NOT TOUCH FROM HERE ------------------------------------------------
+                  
 for iCatch = 1:nCth
     
     % Concatenate all the *.mat files   
@@ -46,7 +50,7 @@ for iCatch = 1:nCth
     Vartmp = vertcat(tmp2{2,:});                                                         % Variable time serie.
     
     
-    % Considering full day 
+    % Considering full day at the local time
     LocalDate = datevec(Datetmp);
     SD = find(LocalDate(:,4)==1 & LocalDate(:,1)==StartYear, 1 );      % SD: start date.
     ED = find(LocalDate(:,4)==0 & LocalDate(:,1)==EndYear, 1,'last');  % ED: End date.
@@ -54,14 +58,20 @@ for iCatch = 1:nCth
     Var1tmp = Vartmp(SD:ED);                                           % local time (from 1h to 00h)
         
  
-    % Accumulating the values at the desired time step
+    % Getting the values at the desired time step
     ntime = numel(Var1tmp);
-    index = sumIndex(ntime, ts);
-    Var  = round(cell2mat(cellfun(@(x) sum(Var1tmp(x)),index,'un',0)),2);
-    
+    index = sumIndex(ntime, ts);   
+    Var = VariableTS (Var1tmp,index,Operation);
+      
     % Date at the desired time step
-    Date_up = LocalDate(ts:ts:end,:);
-    Date = Date_up;
+    if ts == 24
+       Date_up = LocalDate(:,1:3);     
+       Date = datevec(unique(datenum(Date_up)));
+       Date = Date(1:end-1,:);
+    else        
+       Date_up = LocalDate(ts:ts:end,:);
+       Date = Date_up;
+    end
     
     %% Export Matlab format
     
