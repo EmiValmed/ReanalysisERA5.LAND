@@ -100,7 +100,7 @@ for iDates = 1: numel(StartDate)
         tmp    = transpose(arrayfun(@(iLT) mean(tmp00{iLT}(~inan)),1:ntime));
                 
         % Define output file name
-        outfile = sprintf('%s/%s_%s_VarName_%s_%s.mat',OutPath,nameC{iCatch},data,StartDate{iDates},EndDate{iDates});
+        outfile = sprintf('%s/%s_%s_%s_%s_%s.mat',OutPath,nameC{iCatch},data,VarName,StartDate{iDates},EndDate{iDates});
         % Export
         save(outfile,'tmp', 'Date', '-v6');
         
