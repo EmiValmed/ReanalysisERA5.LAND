@@ -12,7 +12,7 @@ end
 
 % Datebase
 data = 'ERA5'; % ERA5/ERA5LAND... % Specify the reanalysis
-
+VarName = 'tp'; 
 
 % Catchment (shapefile's name)
 nameC = {'Bever_WGS84'};
@@ -75,11 +75,11 @@ for iDates = 1: numel(StartDate)
     
     % Retrieve ERA5 variables and attributes (scale_factor and add_offset).
     
-    % Total Precipitation
-    Psf   = netcdf.getAtt(ncid,netcdf.inqVarID(ncid,'tp'),'scale_factor');
-    Pao   = netcdf.getAtt(ncid,netcdf.inqVarID(ncid,'tp'),'add_offset');
-    dataP = netcdf.getVar(ncid,netcdf.inqVarID(ncid,'tp'),'double');
-    dataP = (dataP .* Psf + Pao).*1000;
+    % Variable
+    sf   = netcdf.getAtt(ncid,netcdf.inqVarID(ncid,VarName),'scale_factor');
+    ao   = netcdf.getAtt(ncid,netcdf.inqVarID(ncid,VarName),'add_offset');
+    dataVar = netcdf.getVar(ncid,netcdf.inqVarID(ncid,VarName),'double');
+    dataVar = (dataVar .* sf + ao).*1000;
           
     % Time
     Date = netcdf.getVar(ncid,netcdf.inqVarID(ncid,'time'),'double');
@@ -90,19 +90,19 @@ for iDates = 1: numel(StartDate)
     netcdf.close(ncid);
     
     % Trick for computing cathcment mean at catchment scale
-    Ptmp00   = arrayfun(@(iLT) squeeze(dataP(:,:,iLT)),1:ntime,'UniformOutput',0);
+    tmp00   = arrayfun(@(iLT) squeeze(dataVar(:,:,iLT)),1:ntime,'UniformOutput',0);
         
              
     %% Compute mean at the catchment scale - Catchment loop
     for iCatch = 1:nBV
         inan = isnan(inGrid.(sprintf('C%s',nameC{iCatch})));
         
-        Ptmp    = transpose(arrayfun(@(iLT) mean(Ptmp00{iLT}(~inan)),1:ntime));
+        tmp    = transpose(arrayfun(@(iLT) mean(tmp00{iLT}(~inan)),1:ntime));
                 
         % Define output file name
-        outfile = sprintf('%s/%s_%s_Pt_%s_%s.mat',OutPath,nameC{iCatch},data,StartDate{iDates},EndDate{iDates});
+        outfile = sprintf('%s/%s_%s_VarName_%s_%s.mat',OutPath,nameC{iCatch},data,StartDate{iDates},EndDate{iDates});
         % Export
-        save(outfile,'Ptmp', 'Date', '-v6');
+        save(outfile,'tmp', 'Date', '-v6');
         
     end
     
