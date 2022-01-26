@@ -63,8 +63,22 @@ for iCatch = 1:nCth
     Date_up = LocalDate(ts:ts:end,:);
     Date = Date_up;
     
-    % Export
+    %% Export Matlab format
+    
+    % Define output file name
     outfile = sprintf('%s/%s_%s_%s_%sh.mat',OutPath,nameC{iCatch},data,VarName,num2str(ts));
+    
+    % Export 
     save(outfile,'Var','Date','-v7.3');
     
+    %% Export Excel format
+    
+    Excel = table(Date,Var);
+       
+    % Define output file name
+    outfile = sprintf('%s/%s_%s_%s_%sh.xlsx',OutPath,nameC{iCatch},data,VarName,num2str(ts));
+    
+    % Export
+    writetable(Excel,outfile)
 end
+clear
