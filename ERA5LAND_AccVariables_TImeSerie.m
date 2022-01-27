@@ -1,27 +1,27 @@
 clear; close all; clc
 %% Declarations
 % Directories
-dataPath='\OutPath Folder path in the Extract_ERA5LAND script' ; addpath(dataPath);
-OutPath= '\Outputs\ExcelFormat'                                ; addpath(OutPath);% Catchments
+dataPath='\OutPath Folder path in the Extract_VAriables script' ; addpath(dataPath);
+OutPath= '\Outputs\ExcelFormat'                                 ; addpath(OutPath);
 
 if ~exist(fullfile(OutPath), 'dir')
     mkdir(fullfile(OutPath)); addpath(OutPath);
 end
 
-data = 'ERA5LAND'; % ERA5/ERA5LAND... % Specify the reanalysis
-VarName = 'tp';
-Operation = 'sum';
+data      = 'ERA5LAND'; % ERA5/ERA5LAND... % Specify the reanalysis database
+VarName   = 'tp';       % To modify
+Operation = 'sum';      % To modify
 
 % Catchment (shapefile's name)
-nameC = {'Bever_WGS84'};
+nameC = {'Bever_WGS84'}; % To modify
 nCth = numel(nameC);
 
 % Output data Time steps
 ts = 24;           % To modify
-StartYear = 2005; % To modify
-EndYear   = 2010; % To modify
+StartYear = 2005;  % To modify
+EndYear   = 2010;  % To modify
 
-% Time difference between UTC and the local time
+% Time difference between UTC and local time
 TimeZone  = 'UTC';
 LocalZone = '-05:00';  % ----------------------------------------------------------------------------------------------------
                        % Note: You can specify the time zone value as a character vector of the form +HH:mm or -HH:mm, which
@@ -31,10 +31,13 @@ LocalZone = '-05:00';  % -------------------------------------------------------
                        % display a list of all IANA time zones accepted by the datetime function.
                        % ----------------------------------------------------------------------------------------------------
 
+%% -------------------------------------------------- DO NOT TOUCH FROM HERE -------------------------------------------------
+
 for iCatch = 1:nCth
    
+    % Concatenate all the *.mat files 
     matFiles= dir(strcat(dataPath,sprintf('/%s_%s_%s*.mat',nameC{iCatch},data,VarName)));
-    tmp=[];            % start w/ an empty array
+    tmp=[];                                  % start w/ an empty array
     for i=1:length(matFiles)
         tmp=[tmp; load(matFiles(i).name)];   % read/concatenate into x
     end
@@ -97,3 +100,5 @@ for iCatch = 1:nCth
     writetable(Excel,outfile)
      
 end
+clear
+delete(sprintf('%s/*.mat', dataPath))
