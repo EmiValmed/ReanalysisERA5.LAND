@@ -92,3 +92,4 @@ for iCatch = 1:nCth
     writetable(Excel,outfile)
 end
 clear
+delete(sprintf('%s/*.mat', dataPath))
