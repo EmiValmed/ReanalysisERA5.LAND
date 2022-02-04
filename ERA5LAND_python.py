@@ -8,15 +8,15 @@
 # -*- coding: utf-8 -*-
 
 # $Revision: 0.0 $  $Date: 2017/04/03 00:00:00 $Author: Guillaume HAZEMANN
-#           Original function
+#            Original function
 # $Revision: 0.1 $  $Date: 2017/09/12 00:00:00 $Author: Carine PONCELET
-#           Import all user parameters from bash
-#           Allow user to change dataset parameters
-#           Check the names instead of the number of downloaded files
-#           Automatically update request to account for already downloaded files
-#           Add process progress control
-#           Add communication python-bash
-#           Comment script
+#            Import all user parameters from bash
+#            Allow user to change dataset parameters
+#            Check the names instead of the number of downloaded files
+#            Automatically update request to account for already downloaded files
+#            Add process progress control
+#            Add communication python-bash
+#            Comment script
 # $Revision: 0.2 $ $Date: 2021/04/05 00:00:00 $Author: Emixi Valdez
 #            Modified code to extract ERA5-Land variables instead ECMWF forecasts.
 
