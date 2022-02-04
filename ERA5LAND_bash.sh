@@ -5,13 +5,14 @@
 # $Revision: 0.0 $  $Date: 2017/04/03 00:00:00 $Author: Guillaume HAZEMANN
 #           Original function
 # $Revision: 0.1 $  $Date: 2017/09/12 00:00:00 $Author: Carine PONCELET
-#           Merge launcher (user parameter settings) and bash_script (python_script call)
-#           Define the user parameters in a unique file and export to python
-#           Correct while loop (check file names, define zero activity)
-#           Delete tmux external package (standalone tool)
-#           Comment script
+#            Merge launcher (user parameter settings) and bash_script (python_script call)
+#            Define the user parameters in a unique file and export to python
+#            Correct while loop (check file names, define zero activity)
+#            Delete tmux external package (standalone tool)
+#            Comment script
 # $Revision: 0.2 $  $Date: 2021/03/04 00:00:00 $Author: Emixi Valdez
-#            Added lines 65-85. 
+#            Added lines 65-85. Continue to the next extract when no data is available.
+#            Relaunch the request when server problems occur.
 ##---------------------------------------------------------------
 ## USER PARAMETERS SETTINGS
 ##---------------------------------------------------------------
@@ -26,9 +27,9 @@ export GridRes="0.01/0.01" ## Grid spatial resolution: "Xres/Yres", lat/long deg
 export MeteoVar="167.128/182.128/228.128" #Code of the desired meteorological variable: "MeteoVar1/MeteoVar2/.../MeteoVarN"
 export Area="47.29/-71.18/47.28/-71.16" ## Geographical extent: "N/W/S/E" coordinates in latlong projection (wgs84 projection system)
 ## Define directories
-export DirOut=/media/esvam/WALTER/DATA_ERA5/ ##Directory where ECMWF data are to be stored
-export DirPy=/home/esvam/ # Python script directory
-DirSh=/home/esvam/ # Bash script directory
+export DirOut=/.../.../.../../ ##Directory where ECMWF data are to be stored
+export DirPy=/.../.../ # Python script directory
+DirSh=/.../.../ # Bash script directory
 ##---------------------------------------------------------------
 ## ECMWF DATA RETRIEVAL - No need to modify
 ##---------------------------------------------------------------
