@@ -17,7 +17,8 @@
 #           Add process progress control
 #           Add communication python-bash
 #           Comment script
-
+# $Revision: 0.2 $ $Date: 2021/04/05 00:00:00 $Author: Emixi Valdez
+#            Modified code to extract ERA5-Land variables instead ECMWF forecasts.
 
 #%%
 ##------------------------------------------------------------------
@@ -96,7 +97,7 @@ del iFile,Ind,NbDays,target
 
 #%%
 ##------------------------------------------------------------------
-## RETRIEVE ECMWF DATA
+## RETRIEVE ERA5-LAND DATA
 ##------------------------------------------------------------------
 
 for iDate in range(len(TargetFiles)):
