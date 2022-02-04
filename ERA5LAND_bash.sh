@@ -10,6 +10,8 @@
 #           Correct while loop (check file names, define zero activity)
 #           Delete tmux external package (standalone tool)
 #           Comment script
+# $Revision: 0.2 $  $Date: 2021/03/04 00:00:00 $Author: Emixi Valdez
+#            Added lines 65-85. 
 ##---------------------------------------------------------------
 ## USER PARAMETERS SETTINGS
 ##---------------------------------------------------------------
