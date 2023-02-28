@@ -29,9 +29,9 @@ export NameVar="V1_sol" #Name of meteorological variable
 export Area="52/-80/45/-57" ## Geographical extent: "N/W/S/E" coordinates in latlong projection (wgs84 projection system)
 export Format="netcdf"
 ## Define directories
-export DirOut="/home/ulaval.ca/roham47/projects/REXPHY/sources/hydro/ERA5Land/V1_sol/" ##Directory where ECMWF data are to be stored
-export DirPy="/home/ulaval.ca/roham47/projects/REXPHY/codes_construction/ERA5Land/" # Python script directory
-DirSh="/home/ulaval.ca/roham47/projects/REXPHY/codes_construction/ERA5Land/" # Bash script directory
+export DirOut="/.../.../.../../" ##Directory where ECMWF data are to be stored
+export DirPy="/.../.../" # Python script directory
+DirSh="/.../.../" # Bash script directory
 ##---------------------------------------------------------------
 ## ECMWF DATA RETRIEVAL - No need to modify
 ##---------------------------------------------------------------
@@ -52,7 +52,7 @@ echo -e $(date) " -- Launching $FilePy.
 	Parameters used:
 		Start date=${StaYear}-${StaMonth}-${StaDay}
 		End date  =${EndYear}-${EndMonth}-${EndDay}
-		#Grid Res  =${GridRes}
+		Grid Res  =${GridRes}
 		MeteoVar  =${MeteoVar}
 		Area      =${Area}
 		Output dir=${DirOut}
