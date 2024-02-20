@@ -28,6 +28,7 @@ export MeteoVar="39" #Code of the desired meteorological variable: "MeteoVar1/Me
 export NameVar="V1_sol" #Name of meteorological variable
 export Area="52/-80/45/-57" ## Geographical extent: "N/W/S/E" coordinates in latlong projection (wgs84 projection system)
 export Format="netcdf"
+export AllYears="No" ## Yes or No (Set "No" if you wants specific months of year)
 ## Define directories
 export DirOut="/.../.../.../../" ##Directory where ECMWF data are to be stored
 export DirPy="/.../.../" # Python script directory
