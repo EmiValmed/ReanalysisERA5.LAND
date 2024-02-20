@@ -17,19 +17,22 @@
 ## USER PARAMETERS SETTINGS
 ##---------------------------------------------------------------
 ## Define ECMWF request
-export StaYear="2020" ## Start date (year)
+export StaYear="1950" ## Start date (year)
 export StaMonth="01" ## Start date (month)
 export StaDay="01" ## Start date (day)
-export EndYear="2020" ## End date (year)
+export EndYear="2022" ## End date (year)
 export EndMonth="12" ## End date (month)
 export EndDay="31" ## End date (day)
-export GridRes="0.01/0.01" ## Grid spatial resolution: "Xres/Yres", lat/long degrees
-export MeteoVar="167.128/182.128/228.128" #Code of the desired meteorological variable: "MeteoVar1/MeteoVar2/.../MeteoVarN"
-export Area="47.29/-71.18/47.28/-71.16" ## Geographical extent: "N/W/S/E" coordinates in latlong projection (wgs84 projection system)
+export GridRes="0.1/0.1" ## Grid spatial resolution: "Xres/Yres", lat/long degrees
+export MeteoVar="39" #Code of the desired meteorological variable: "MeteoVar1/MeteoVar2/.../MeteoVarN"
+export NameVar="V1_sol" #Name of meteorological variable
+export Area="52/-80/45/-57" ## Geographical extent: "N/W/S/E" coordinates in latlong projection (wgs84 projection system)
+export Format="netcdf"
+export AllYears="No" ## Yes or No (Set "No" if you wants specific months of year)
 ## Define directories
-export DirOut=/.../.../.../../ ##Directory where ECMWF data are to be stored
-export DirPy=/.../.../ # Python script directory
-DirSh=/.../.../ # Bash script directory
+export DirOut="/.../.../.../../" ##Directory where ECMWF data are to be stored
+export DirPy="/.../.../" # Python script directory
+DirSh="/.../.../" # Bash script directory
 ##---------------------------------------------------------------
 ## ECMWF DATA RETRIEVAL - No need to modify
 ##---------------------------------------------------------------
@@ -58,7 +61,7 @@ echo -e $(date) " -- Launching $FilePy.
 
 	## Launch data retrieval and get download ExitCode
 	echo -e $(date) " -- Launching $FilePy."
-	python2 -u $FilePy &
+	python3 -u $FilePy &
 	PID=$!
 	wait $PID
 	ExitCode=$?
@@ -68,7 +71,7 @@ echo -e $(date) " -- Launching $FilePy.
 		echo -e $(date) " -- $FilePy terminated with exit code $ExitCode."
 
 		echo -e $(date) " -- Relaunching $FilePy, attempt $NumAttempt of $MaxAttempt.\n"
-		python2 -u $FilePy &
+		python3 -u $FilePy &
 		PID=$!
 		wait $PID
 		ExitCode=$?
