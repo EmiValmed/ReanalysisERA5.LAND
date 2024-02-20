@@ -28,6 +28,7 @@
 ## Define python libraries
 import pandas as pd
 import datetime as dt
+import numpy as np
 import os
 import time
 
@@ -45,6 +46,7 @@ MeteoVar = os.environ["MeteoVar"]
 NameVar = os.environ["NameVar"]
 Area = os.environ["Area"]
 Format = os.environ["Format"]
+AllYears = os.environ["AllYears"]
 
 ## Get connection informations
 import cdsapi
@@ -71,17 +73,35 @@ if (FileExt == ".nc"):
 ## Built the list of files to download
 ##------------------------------------------------------------------
 
-## Convert user dates
-StaDate = dt.date(year=int(StaYear), month=int(StaMonth), day=int(StaDay))
-EndDate = dt.date(year=int(EndYear), month=int(EndMonth), day=int(EndDay))
+if AllYears == "Yes" :
+    ## Convert user dates
+    StaDate = dt.date(year=int(StaYear), month=int(StaMonth), day=int(StaDay))
+    EndDate = dt.date(year=int(EndYear), month=int(EndMonth), day=int(EndDay))
 
-## Create range
-RangeStaDate = pd.date_range(StaDate, EndDate, freq = "MS").strftime("%Y-%m-%d").tolist()
-RangeEndDate = pd.date_range(StaDate, EndDate, freq = "M").strftime("%Y-%m-%d").tolist() 
+    ## Create range
+    RangeStaDate = pd.date_range(StaDate, EndDate, freq = "MS").strftime("%Y-%m-%d").tolist()
+    RangeEndDate = pd.date_range(StaDate, EndDate, freq = "M").strftime("%Y-%m-%d").tolist() 
+    
+    Files = [str(NameVar) + '_' + str(RangeStaDate[i]) + '_' + str(RangeEndDate[i]) for i in range(len(RangeStaDate))]
+    
+elif AllYears == "No" :
+    
+    # List of years
+    Years = np.arange(int(StaYear), int(EndYear)+1)
+    
+    Files = []
+    for y in Years :
+        StaDate = dt.date(year=y, month=int(StaMonth), day=int(StaDay))
+        EndDate = dt.date(year=y, month=int(EndMonth), day=int(EndDay))
+
+        RangeStaDate = pd.date_range(StaDate, EndDate, freq = "MS").strftime("%Y-%m-%d").tolist()
+        RangeEndDate = pd.date_range(StaDate, EndDate, freq = "M").strftime("%Y-%m-%d").tolist()
+
+        Files = Files + [str(NameVar) + '_' + str(RangeStaDate[i]) + '_' + str(RangeEndDate[i]) for i in range(len(RangeStaDate))]
+
 
 ## Infer initial list of files to download
 TargetFiles = []
-Files = [str(NameVar) + '_' + str(RangeStaDate[i]) + '_' + str(RangeEndDate[i]) for i in range(len(RangeStaDate))]
 for i in range(0, len(Files)):
     if os.path.exists(DirOut + Files[i] + ".nc") == False :
         TargetFiles.append(Files[i])
